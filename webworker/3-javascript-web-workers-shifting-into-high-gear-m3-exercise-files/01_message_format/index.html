@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	</head>
+	<body>
+		<h1>Hello Web Workers!</h1>
+		<script>
+			let worker = new Worker('worker.js');
+
+			worker.addEventListener('message', function (e) {
+				console.log(e.data);
+			});
+
+			worker.postMessage({
+				type: 'add',
+				args: [1, 2]
+			});
+
+			worker.postMessage({
+				type: 'subtract',
+				args: [10, 5]
+			})
+		</script>
+	</body>
+</html>

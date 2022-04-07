@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	</head>
+	<body>
+		<h1>Hello Web Workers!</h1>
+		<script>
+			let worker = new Worker('worker.js');
+			worker.postMessage('hello');
+		</script>
+	</body>
+</html>

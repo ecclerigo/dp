@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+			let dojoConfig = {
+				async: true,
+				baseUrl: '/node_modules/dojo'
+			}
+		</script>
+		<script src="/node_modules/dojo/dojo.js"></script>
+	</head>
+	<body>
+		<h1>Hello Web Workers!</h1>
+		<script>
+			let worker = new Worker('worker.js'),
+				callbacks = {},
+				nextCorrelationId = 1;
+
+			worker.addEventListener('message', function (e) {
+				if (callbacks[e.data.correlationId]) {
+					callbacks[e.data.correlationId](e.data.result);
+				}
+			});
+
+			worker.postMessage({
+				type: 'config',
+				options: {
+					async: true,
+					baseUrl: '/node_modules/dojo'
+				}
+			});
+
+			worker.postMessage({
+				type: 'loadScript',
+				url: '/node_modules/dojo/dojo.js'
+			});
+
+			function testDojo(template, args) {
+				let promise = new Promise(function (resolve, reject) {
+					require(['dojo/string'], function (string) {
+						let result = string.substitute(template, args);
+
+						resolve(result);
+					});
+				});
+				return promise;
+			}
+
+			let regExp = /\((.*)\).*\{([\s\S]*)\}/m,
+				funcParts = regExp.exec(testDojo.toString())
+
+			worker.postMessage({
+				type: 'registerFunction',
+				name: 'testDojo',
+				parameters: funcParts[1],
+				body: funcParts[2],
+				isAsync: true
+			});
+
+			let msg = {
+				type: 'testDojo',
+				args: ['Async Dojo is ${phrase}', {phrase: 'awesome!'}],
+				correlationId: nextCorrelationId++
+			};
+
+			callbacks[msg.correlationId] = function (result) {
+				console.log(result.value);
+			}
+
+			worker.postMessage(msg);
+
+		</script>
+	</body>
+</html>

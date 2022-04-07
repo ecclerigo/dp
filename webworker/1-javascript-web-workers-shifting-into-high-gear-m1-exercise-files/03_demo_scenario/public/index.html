@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="node_modules/foundation-sites/dist/foundation.min.css">
+		<link rel="stylesheet" href="css/app.css">
+		<script>
+			var dojoConfig = {
+				async: true,
+				baseUrl: 'node_modules/dojo',
+				packages: [
+					{
+						name: 'app',
+						location: '../../js/app'
+					}
+				]
+			};
+		</script>
+		<script src="node_modules/dojo/dojo.js"></script>
+	</head>
+	<body>
+		<div id="shell"></div>
+		<script>
+			require(['app', 'dojo/domReady!'], function() {});
+		</script>
+	</body>
+</html>

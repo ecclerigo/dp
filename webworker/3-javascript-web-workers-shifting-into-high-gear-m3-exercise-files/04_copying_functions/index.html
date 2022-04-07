@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	</head>
+	<body>
+		<h1>Hello Web Workers!</h1>
+		<script>
+			let worker = new Worker('worker.js'),
+				nextCorrelationId = 1,
+				callbacks = {};
+
+			function add(l, r) {
+				if (!parseFloat(l) || !parseFloat(r)) {
+					throw 'Must have numeric inputs';
+				}
+				return l + r;
+			}
+
+			function subtract(l, r) {
+				return l - r;
+			}
+
+			worker.addEventListener('message', function (e) {
+				if (callbacks[e.data.correlationId]) {
+					callbacks[e.data.correlationId](e.data.result);
+					delete callbacks[e.data.correlationId];
+				}
+			});
+
+			worker.addEventListener('error', function (e) {
+				console.log(e);
+			});
+
+			let regExp = /\((.*)\).*\{([\s\S]*)\}/m,
+				addParts = regExp.exec(add.toString()),
+				subtractParts = regExp.exec(subtract.toString());
+
+			worker.postMessage({
+				type: 'registerFunction',
+				name: 'add',
+				parameters: addParts[1],
+				body: addParts[2]
+			});
+
+			worker.postMessage({
+				type: 'registerFunction',
+				name: 'subtract',
+				parameters: subtractParts[1],
+				body: subtractParts[2]
+			});
+
+			let msg = {
+				type: 'add',
+				args: [1, 2],
+				correlationId: nextCorrelationId++
+			};
+
+			callbacks[msg.correlationId] = (function(msg) {
+				return function (result) {
+					if (result.isError) {
+						console.log('Something went wrong');
+					} else {
+						console.log('The result of adding', 
+						msg.args, ' is ', result.value);
+					}
+				}
+			})(msg);
+
+			worker.postMessage(msg);
+
+			msg = {
+				type: 'subtract',
+				correlationId: nextCorrelationId++,
+				args: [10, 5]
+			};
+
+			callbacks[msg.correlationId] = (function (msg) {
+				return function (result) {
+					console.log('The result of subtracting', msg.args, ' is ', result);
+				}
+			})(msg);
+
+			worker.postMessage(msg);
+
+/*
+			worker.postMessage({
+				type: 'add',
+				args: [1, 2]
+			});
+
+			worker.postMessage({
+				type: 'subtract',
+				args: [10, 5]
+			})*/
+		</script>
+	</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	</head>
+	<body>
+		<h1>Hello Web Workers!</h1>
+		<script>
+			let worker = new Worker('worker.js'),
+				nextCorrelationId = 1,
+				callbacks = {};
+
+			worker.addEventListener('message', function (e) {
+				if (callbacks[e.data.correlationId]) {
+					callbacks[e.data.correlationId](e.data.result);
+					delete callbacks[e.data.correlationId];
+				}
+			});
+
+			let msg = {
+				type: 'add',
+				args: [1, 2],
+				correlationId: nextCorrelationId++
+			};
+
+			callbacks[msg.correlationId] = (function(msg) {
+				return function (result) {
+					console.log('The result of adding', msg.args, ' is ', result);
+				}
+			})(msg);
+
+			worker.postMessage(msg);
+
+			msg = {
+				type: 'subtract',
+				correlationId: nextCorrelationId++,
+				args: [10, 5]
+			};
+
+			callbacks[msg.correlationId] = (function (msg) {
+				return function (result) {
+					console.log('The result of subtracting', msg.args, ' is ', result);
+				}
+			})(msg);
+
+			worker.postMessage(msg);
+
+/*
+			worker.postMessage({
+				type: 'add',
+				args: [1, 2]
+			});
+
+			worker.postMessage({
+				type: 'subtract',
+				args: [10, 5]
+			})*/
+		</script>
+	</body>
+</html>

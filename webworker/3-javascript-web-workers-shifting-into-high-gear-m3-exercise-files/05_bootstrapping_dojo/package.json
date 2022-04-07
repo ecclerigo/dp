@@ -1,0 +1,23 @@
+{
+  "name": "webworkers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": " "
+  },
+  "keywords": [
+    "pluralsight",
+    "javascript",
+    "webworkers"
+  ],
+  "author": "Michael Van Sickle",
+  "license": "ISC",
+  "dependencies": {
+    "dojo": "^1.11.2"
+  }
+}

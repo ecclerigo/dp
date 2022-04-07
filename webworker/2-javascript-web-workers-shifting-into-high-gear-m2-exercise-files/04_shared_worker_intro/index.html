@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	</head>
+	<body>
+		<h1>Hello Web Workers!</h1>
+		<script>
+			let worker = new SharedWorker('worker.js');
+
+			worker.port.postMessage('hello');
+		</script>
+	</body>
+</html>
